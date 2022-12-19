@@ -1,0 +1,7 @@
+<nav search_view="search">
+  <view name="welcome" default='true' />
+  <view name="search" />
+  <view name="by_source" />
+  <view name="by_encounter" />
+  <view name="dashboards" />
+</nav>

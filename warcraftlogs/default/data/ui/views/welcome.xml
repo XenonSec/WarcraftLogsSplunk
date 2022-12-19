@@ -1,0 +1,19 @@
+<dashboard>
+  <label>Welcome</label>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>| makeresults
+| eval Intro="This app is a TA developed to fast search inside the wow logs. It have complete parses using the following documentation https://wowwiki.fandom.com/wiki/API_COMBAT_LOG_EVENT.!Usage:!- Upload our file using the uploader at manager/search/adddata.!- Upload it with the name of the raid (for example) you did as you do in warcraftlogs. This way you can search raid by raid.!- Use the sourcetype WoWCombatLog, all splunk knowledge objects are associated to that sourcetype.!- If you want to use the dashboards included in the app, use the sequent SPL line in the search bar | `updateEncountersLookup` with the needed timestamps of your raid.! ! ! !Developed by @Osakachan2 #Twitter."
+| makemv delim="!" Intro
+| table Intro</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

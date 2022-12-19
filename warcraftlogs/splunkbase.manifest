@@ -1,0 +1,114 @@
+{
+  "version": "1.0",
+  "date": "2022-11-14T22:38:58.611887919Z",
+  "hashAlgorithm": "SHA-256",
+  "app": {
+    "id": 5036,
+    "version": "0.1.2",
+    "files": [
+      {
+        "path": "metadata/default.meta",
+        "hash": "8b019a9119c94a78c59de275c6cd89c8f405cfee652d5ee71e0c9d88aed5843a"
+      },
+      {
+        "path": "default/data/ui/views/by_source.xml",
+        "hash": "897f37ab0791983a8d40e695ed3631c4af98e1cde4113954a107037d7c4f0b5e"
+      },
+      {
+        "path": "default/data/ui/views/by_encounter.xml",
+        "hash": "593ab2b424fbcc9c422b93f85ca9f2db52c155660096141ade1f351d144a0eb0"
+      },
+      {
+        "path": "default/data/ui/views/welcome.xml",
+        "hash": "cbf7eca19d3aa1968e43390ae57095713caa513c15cb896c79477ea10281d1e6"
+      },
+      {
+        "path": "default/data/ui/nav/default.xml",
+        "hash": "0eb5d46e6e30232a36b606d114646afe0c68321c2deef6b130e1274737628fba"
+      },
+      {
+        "path": "default/fields.conf",
+        "hash": "36a4af03ea312a0d288d0f94e12bf07c52f548def47e4214ef4368959279607c"
+      },
+      {
+        "path": "default/macros.conf",
+        "hash": "1e60dd750b57503d7c37a8c57d11fa5e247a7b9637938016507f94531590c244"
+      },
+      {
+        "path": "default/props.conf",
+        "hash": "4cc9bf5fc514af9accfec67cff71b26b0dcee042be84954bec61cb757f88289f"
+      },
+      {
+        "path": "default/transforms.conf",
+        "hash": "5f3b8e15e01e955ff9f35189fe3e29ffc0c7fd9e89f1eb6a7acc6d80eea4c649"
+      },
+      {
+        "path": "default/app.conf",
+        "hash": "61d509b3fed626136e36e61909424bc2e74b20cca735923cf31299bb117faef6"
+      },
+      {
+        "path": "lookups/powerType-to-name.csv",
+        "hash": "5cdfbf565214675881e491f7f3108f62d83255d6b844dfb709428dc886c94f3e"
+      },
+      {
+        "path": "lookups/spellSchool-to-name.csv",
+        "hash": "18bf9482bfc95c29fcef9f5105d1ac60afa542fb804c6d1cd3ae5ea8e0d62146"
+      },
+      {
+        "path": "lookups/encounters.csv",
+        "hash": "a67e80d1005b2b3eb48f5809c54e24b24a71205ed848604d8bd4400d8c78524d"
+      },
+      {
+        "path": "appserver/static/boomer.png",
+        "hash": "71bedfe3bb3c753cbf6914bbef30730bffcfca0c37da9ded3dee4ee3c8ec4c0d"
+      },
+      {
+        "path": "static/appIcon.png",
+        "hash": "514720ae9f4f378eac0b10692585f00835646d2cb36bbbafdb3cee1704970db1"
+      },
+      {
+        "path": "static/appIconAlt.png",
+        "hash": "514720ae9f4f378eac0b10692585f00835646d2cb36bbbafdb3cee1704970db1"
+      },
+      {
+        "path": "static/appIcon_2x.png",
+        "hash": "3982230363d333bc60ca477f48d8732fb4d671fc8252ef646ceab2bced5e2e41"
+      },
+      {
+        "path": "README",
+        "hash": "f50687dc943306b1c26ea41fa701f87757755385dfe54b2137e60c710e2e813c"
+      },
+      {
+        "path": "app.manifest",
+        "hash": "aba5607e72c661fccdafd30472af574be5fca4e1297e983c9735cbf3c450f44d"
+      }
+    ]
+  },
+  "products": [
+    {
+      "platform": "splunk",
+      "product": "enterprise",
+      "versions": [
+        "7.0",
+        "7.1",
+        "7.2",
+        "7.3",
+        "8.0",
+        "8.1",
+        "8.2",
+        "9.0"
+      ],
+      "architectures": [
+        "x86_64"
+      ],
+      "operatingSystems": [
+        "windows",
+        "linux",
+        "macos",
+        "freebsd",
+        "solaris",
+        "aix"
+      ]
+    }
+  ]
+}

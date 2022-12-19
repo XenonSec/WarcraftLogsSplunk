@@ -1,0 +1,142 @@
+<form theme="dark">
+  <label>By Source</label>
+  <description>Stadistics for a source log(raid) $source$</description>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="dropdown" token="source">
+      <label>Source</label>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <search>
+        <query>| inputlookup encounters.csv
+| stats c by source
+| table source</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Total Player deaths</title>
+      <single>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=UNIT_DIED destType=Player
+| stats c</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Total encounters</title>
+      <single>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=ENCOUNTER_END
+| stats c</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Encounters Pie</title>
+      <chart>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=ENCOUNTER_END
+| stats c by encounterName</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">181</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Damage done</title>
+      <chart>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=*DAMAGE* type!=SWING_DAMAGE_LANDED  destType=Creature | stats sum(amount) as "amount" sum(rawAmount) as "rawAmount" by sourcePlayer  | sort - amount 
+|  head 10</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Healing done (without absorbs)</title>
+      <chart>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=*HEAL*  destType=Player 
+| eval rawAmount=amount, amount=amount-overhealing | stats sum(amount) as "realAmount" sum(rawAmount) as "rawAmount" by sourcePlayer 
+| sort - realAmount
+| head 10</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Resources consumables used</title>
+      <table>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ spellID=17531 OR spellID=16666 OR spellID=27869 OR spellID=9512 OR spellID=17428 srcType=Player
+| stats c as number1 by sourcePlayer,spellID,spellName
+| eval Item_count=spellName." ".number1
+| stats sum(number1) as "Total" values(Item_count) as "Item count" by sourcePlayer
+| table sourcePlayer,"Item count",Total
+| sort - Total</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Total dispels</title>
+      <table>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=SPELL_DISPEL auraType=DEBUFF srcType=Player
+| stats c as number1 by sourcePlayer,spellID,spellName,extraSpellName,extraSpellID
+| eval Item_count=spellName." &gt; ".extraSpellName." ".number1
+| stats sum(number1) as "Total" values(Item_count) as "Dispel count" by sourcePlayer
+| table sourcePlayer,"Dispel count",Total
+| sort - Total</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="count">1</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Buffs sniper</title>
+      <table>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=SPELL_AURA_REMOVED OR type=SPELL_AURA_APPLIED auraType=BUFF (spellID=15123 OR spellID=22888 OR spellID=15366 OR spellID=16609 OR spellID=22818 OR spellID=24425 OR spellID=17543 OR spellID=22817 OR spellID=23768 OR spellID=17626 OR spellID=22820 OR spellID=17627 OR spellID=23769 OR spellID=24382 OR spellID=11405 OR spellID=17543 OR spellID=7233) srcType=Player
+| stats values(destName) dc(destGUID) c by spellID,spellName</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,176 @@
+<form theme="dark">
+  <label>By Encounter</label>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="source">
+      <label>Source</label>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <search>
+        <query>| inputlookup encounters.csv
+| stats c by source
+| table source</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+    </input>
+    <input type="dropdown" token="encounterName">
+      <label>Encounter</label>
+      <fieldForLabel>encounterName</fieldForLabel>
+      <fieldForValue>encounterName</fieldForValue>
+      <search>
+        <query>| inputlookup encounters.csv
+| search source=$source$
+| table encounterName</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Encounter Duration</title>
+        <search>
+          <query>| inputlookup encounters.csv
+| search source="$source$" encounterName="$encounterName$"
+| table duration</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Deaths</title>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=UNIT_DIED destType=Player `encounterTimes($source$,$encounterName$)`
+| stats c</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Encounter timestamp</title>
+        <search>
+          <query>| inputlookup encounters.csv
+| search source="$source$" encounterName="$encounterName$"
+| table tryTime</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Sunder Armor aplication</title>
+        <search>
+          <query>sourcetype="wowcombatlog" spellID=11597 type=SPELL_AURA_APPLIED_DOSE OR type=SPELL_CAST_SUCCESS `encounterTimes($source$,$encounterName$)`
+| sort + _time
+| eval stack=amount
+| fillnull value="-1" amount 
+| fillnull value="0" stack
+| streamstats values(_time) as "lastDose" values(amount) as "lastAmount" values(stack) as "lastStack" by destGUID,destName window=1 current=false
+| eval newDose=_time, newAmount=amount, encounterName="$encounterName$", source="$source$", stack=if(stack == 0 AND lastStack != 0, lastStack, stack)
+| streamstats max(stack) as "lastStack" by destGUID,destName window=500 current=false
+| eval stack=if(lastStack != -1 AND newAmount == -1, lastStack, stack)
+
+| lookup encounters.csv source as source encounterName as encounterName
+| eval doseTime=if(lastAmount!=0, newDose - lastDose ,newDose - start)
+| sort - _time
+| streamstats values(stack) as stack1 values(doseTime) as doseTime1  by destGUID,destName window=1 current=false
+| eval stack1=if(isnull(stack1), newAmount, stack1), doseTime1=if(isnull(doseTime1), if ( 30 &gt; ( end - newDose), end - newDose, "30"), doseTime1)
+| eval doseTime=if(stack1 == -1 , doseTime + doseTime1, doseTime)
+| stats sum(doseTime) by stack</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Dispels</title>
+        <search>
+          <query>source="log_may.txt"  type=SPELL_DISPEL auraType=DEBUFF srcType=Player `encounterTimes($source$,$encounterName$)` | eval switch=if( type="SPELL_AURA_APPLIED" OR type="SPELL_AURA_APPLIED_DOSE" , 1, 0) | transaction spellID sourceGUID endswith=(switch=0) keeporphans=true
+| stats c as "count" by sourcePlayer,extraSpellName
+| sort - count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisLabelsY.majorUnit">1</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisTitleY2.visibility">collapsed</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="height">249</option>
+        <option name="trellis.enabled">1</option>
+        <option name="trellis.size">small</option>
+        <option name="trellis.splitBy">extraSpellName</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Totems buffs uptime</title>
+        <search>
+          <query>source="log_may.txt"  spellID=10610 OR spellID=10627 OR spellID=25908 type="SPELL_AURA_APPLIED*" OR type="SPELL_AURA_REMOVED" `encounterTimes($source$,$encounterName$)` | eval switch=if( type="SPELL_AURA_APPLIED" OR type="SPELL_AURA_APPLIED_DOSE" , 1, 0) | transaction spellID sourceGUID endswith=(switch=0) keeporphans=true
+| stats sum(duration) as "duration" by sourcePlayer,spellName
+| sort - duration</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisTitleY2.visibility">collapsed</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="trellis.enabled">1</option>
+        <option name="trellis.size">small</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Damage done</title>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=*DAMAGE* `encounterTimes($source$,$encounterName$)` type!=SWING_DAMAGE_LANDED  destType=Creature | stats sum(amount) as "amount" sum(rawAmount) as "rawAmount" by sourcePlayer  | sort - amount 
+|  head 10</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Healing done (without absorbs)</title>
+        <search>
+          <query>sourcetype="wowcombatlog" source=$source$ type=*HEAL*  destType=Player `encounterTimes($source$,$encounterName$)`
+| eval rawAmount=amount, amount=amount-overhealing | stats sum(amount) as "realAmount" sum(rawAmount) as "rawAmount" by sourcePlayer 
+| sort - realAmount
+| head 10</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+</form>
